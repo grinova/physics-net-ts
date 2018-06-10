@@ -1,4 +1,4 @@
-export interface Creator<Props, Result> {
+interface Creator<Props, Result> {
   create(props: Props): Result
 }
 
