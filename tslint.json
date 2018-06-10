@@ -1,0 +1,10 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint-config-standard"
+  ],
+  "rules": {
+    "space-before-function-paren": false
+  },
+  "rulesDirectory": []
+}
