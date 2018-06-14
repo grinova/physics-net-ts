@@ -1,11 +1,6 @@
-import { ByIdRouter } from './by-id-router'
-import { Handler } from '../common/handler'
+import { WaveRouter } from './wave-router'
 import { Manage, ManageData } from '../data/manage'
 
 export class ManageRouter
-extends ByIdRouter<ManageData, Manage>
-implements Handler<Manage> {
-  handle(data: Manage): void {
-    this.route(data)
-  }
+extends WaveRouter<ManageData, Manage> {
 }

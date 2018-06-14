@@ -18,6 +18,8 @@ import { ControllerFactory, ControllersManager } from './managers/controllers-ma
 import { Net } from './net/net'
 import { ManageRouter } from './routers/manage-router'
 import { MessageRouter } from './routers/message-router'
+import { SyncRouter } from './routers/sync-router'
+import { SystemRouter } from './routers/system-router'
 
 export class Client {
   onConnect?: () => void
@@ -29,6 +31,8 @@ export class Client {
   private bodiesManager: BodiesManager<UserData> = new BodiesManager<UserData>()
   private controllersManager: ControllersManager<UserData> = new ControllersManager<UserData>()
   private actorsManager: ActorsManager<UserData> = new ActorsManager<UserData>()
+  private syncRouter: SyncRouter = new SyncRouter()
+  private systemRouter: SystemRouter = new SystemRouter()
   private messageRouter: MessageRouter = new MessageRouter()
 
   constructor(net: Net) {
@@ -65,6 +69,8 @@ export class Client {
 
     this.messageRouter.register('manage', manageRouter)
     this.messageRouter.register('event', eventHandler)
+    this.messageRouter.register('sync', this.syncRouter)
+    this.messageRouter.register('system', this.systemRouter)
 
     this.sender = new EventSender(eventHandler, this.net)
 
@@ -87,6 +93,14 @@ export class Client {
 
   getEventSender(): EventSender {
     return this.sender
+  }
+
+  getSyncRouter<T = any>(): SyncRouter<T> {
+    return this.syncRouter
+  }
+
+  getSystemRouter<T = any>(): SystemRouter<T> {
+    return this.systemRouter
   }
 
   simulate(time: TimeDelta): void {
