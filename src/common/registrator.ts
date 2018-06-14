@@ -7,7 +7,7 @@ export interface Registrator<T> {
 
 export class BaseRegistrator<T>
 implements Registrator<T> {
-  private store: Store<T, string> = new Store<T, string>()
+  protected store: Store<T, string> = new Store<T, string>()
 
   register(id: string, value: T): boolean {
     const has = this.store.has(id)

@@ -1,5 +1,4 @@
-export class Store<Value, Key = string>
-implements Store<Value, Key> {
+export class Store<Value, Key = string> {
   private map: Map<Key, Value> = new Map<Key, Value>()
 
   delete(key: Key): boolean {
