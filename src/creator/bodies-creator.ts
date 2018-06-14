@@ -1,10 +1,12 @@
 import { Body } from 'classic2d'
-import { BodyCreatorProps, BodiesManager } from '../managers/bodies-manager'
+import { Creator } from '../common/creator'
+import { BodiesManager, BodyCreatorProps } from '../managers/bodies-manager'
 
 export interface BodyProps
 extends BodyCreatorProps {}
 
-export class BodiesCreator<UserData> {
+export class BodiesCreator<UserData>
+implements Creator<BodyProps, Body<UserData>> {
   private manager: BodiesManager<UserData>
 
   constructor(manager: BodiesManager<UserData>) {

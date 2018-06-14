@@ -1,5 +1,5 @@
 import { Actor } from 'actors-ts'
-import { Creator } from './creator'
+import { Creator } from '../common/creator'
 import { ActorsManager } from '../managers/actors-manager'
 import { BodiesManager, BodyCreatorProps } from '../managers/bodies-manager'
 import { ControllersManager } from '../managers/controllers-manager'
