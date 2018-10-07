@@ -1,8 +1,8 @@
 import { Actor } from 'actors-ts'
 import { Creator } from '../common/creator'
-import { ActorsManager } from '../managers/actors-manager'
+import { ActorCreatorProps, ActorsManager } from '../managers/actors-manager'
 import { BodiesManager, BodyCreatorProps } from '../managers/bodies-manager'
-import { ControllersManager } from '../managers/controllers-manager'
+import { ControllerCreatorProps, ControllersManager } from '../managers/controllers-manager'
 
 export interface ActorProps {
   bodyProps: BodyCreatorProps
@@ -25,9 +25,9 @@ implements Creator<ActorProps, Actor> {
   }
 
   create<P extends ActorProps = ActorProps>(type: string, props: P): Actor {
-    const body = this.bodiesManager.create(type, props.bodyProps)
-    const controller = this.controllersManager.create(type, { body })
-    const actor = this.actorsManager.create(type, { controller, creator: this })
+    const body = this.bodiesManager.create<BodyCreatorProps>(type, props.bodyProps)
+    const controller = this.controllersManager.create<ControllerCreatorProps<UserData>>(type, { body })
+    const actor = this.actorsManager.create<ActorCreatorProps<UserData>>(type, { controller, creator: this })
     return actor
   }
 }

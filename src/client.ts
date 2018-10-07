@@ -7,10 +7,9 @@ import { Simulator } from './controller/simulator'
 import { ActorsCreator } from './creator/actors-creator'
 import { BodiesCreator } from './creator/bodies-creator'
 import { Message } from './data/message'
-import { UserData } from './data/user-data'
 import { EventSender } from './event/sender'
 import { ActorsManageHandler } from './handlers/actors-manage-handler'
-import { BodiesManageHandler } from './handlers/bodies-manage-handler'
+import { BodiesManageHandler, NetUserData } from './handlers/bodies-manage-handler'
 import { EventHandler } from './handlers/events-handler'
 import { ActorsFactory, ActorsManager } from './managers/actors-manager'
 import { BodiesFactory, BodiesManager } from './managers/bodies-manager'
@@ -21,7 +20,7 @@ import { MessageRouter } from './routers/message-router'
 import { SyncRouter } from './routers/sync-router'
 import { SystemRouter } from './routers/system-router'
 
-export class Client {
+export class Client<UserData extends NetUserData> {
   onConnect?: () => void
   onDisconnect?: () => void
 
@@ -55,8 +54,8 @@ export class Client {
     const actors = new Actors({ rootIdGenerator })
     actors.setListener(actorsListener)
 
-    const bodiesCreator = new BodiesCreator(this.bodiesManager)
-    const bodiesManageHandler = new BodiesManageHandler(bodiesCreator)
+    const bodiesCreator = new BodiesCreator<UserData>(this.bodiesManager)
+    const bodiesManageHandler = new BodiesManageHandler<UserData>(bodiesCreator)
 
     const actorsCreator = new ActorsCreator<UserData>(this.actorsManager, this.controllersManager, this.bodiesManager)
     const actorsManageHandler = new ActorsManageHandler<UserData>(actorsCreator, rootIdGenerator, actors)
