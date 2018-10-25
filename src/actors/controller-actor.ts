@@ -9,17 +9,17 @@ import {
 import { Controller } from '../controller/controller'
 import { ActorsCreator } from '../creator/actors-creator'
 
-export interface ControllerActorProps<UserData, C extends Controller> {
+export interface ControllerActorProps<C extends Controller> {
   controller: C
-  creator: ActorsCreator<UserData>
+  creator: ActorsCreator
 }
 
-export class ControllerActor<UserData, C extends Controller, M extends Message = Message>
+export class ControllerActor<C extends Controller, M extends Message = Message>
 implements Actor<M> {
   readonly controller: C
-  readonly creator: ActorsCreator<UserData>
+  readonly creator: ActorsCreator
 
-  constructor(props: ControllerActorProps<UserData, C>) {
+  constructor(props: ControllerActorProps<C>) {
     this.controller = props.controller
     this.creator = props.creator
   }

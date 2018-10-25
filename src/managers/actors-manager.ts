@@ -1,16 +1,16 @@
-import { Actor, Message } from 'actors-ts'
+import { Actor } from 'actors-ts'
 import { BaseManager } from './base-manager'
 import { Factory } from '../common/factory'
 import { Controller } from '../controller/controller'
 import { ActorsCreator } from '../creator/actors-creator'
 
-export interface ActorCreatorProps<UserData> {
+export interface ActorCreatorProps {
   controller: Controller
-  creator: ActorsCreator<UserData>
+  creator: ActorsCreator
 }
 
-export type ActorsFactory<UserData, M extends Message = Message> = Factory<ActorCreatorProps<UserData>, Actor<M>>
+export type ActorsFactory = Factory<ActorCreatorProps, Actor>
 
-export class ActorsManager<UserData, M extends Message = Message>
-extends BaseManager<ActorCreatorProps<UserData>, Actor<M>> {
+export class ActorsManager
+extends BaseManager<ActorCreatorProps, Actor> {
 }

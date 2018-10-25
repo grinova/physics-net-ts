@@ -1,24 +1,45 @@
-import { Actors } from 'actors-ts'
 import { ManageHandler } from './manage-handler'
 import { CustomIdGenerator } from '../actors/custom-id-generator'
 import { ActorsCreator } from '../creator/actors-creator'
-import { CreateParameters } from '../data/manage'
+import { CreateParameters, DestroyParameters } from '../data/manage'
+import { ActorCreatorProps, ActorsManager } from '../managers/actors-manager'
+import { ControllersManager } from '../managers/controllers-manager'
+import { Actors, Actor/* , Message */ } from 'actors-ts'
 
-export class ActorsManageHandler<UserData>
-extends ManageHandler {
-  private creator: ActorsCreator<UserData>
+export class ActorsManageHandler/* <M extends Message = Message> */
+extends ManageHandler<ActorCreatorProps, void | Actor/* <M> */> {
+  private actorsCreator: ActorsCreator
+  private controllersManager: ControllersManager
   private idGenerator: CustomIdGenerator
   private actors: Actors
 
-  constructor(creator: ActorsCreator<UserData>, idGenerator: CustomIdGenerator, actors: Actors) {
-    super()
-    this.creator = creator
+  constructor(
+    manager: ActorsManager/* <M> */,
+    actorsCreator: ActorsCreator,
+    controllersManager: ControllersManager,
+    idGenerator: CustomIdGenerator,
+    actors: Actors
+  ) {
+    super(manager)
+    this.controllersManager = controllersManager
+    this.actorsCreator = actorsCreator
     this.idGenerator = idGenerator
     this.actors = actors
   }
 
-  create(params: CreateParameters): void {
-    this.idGenerator.id = params.id
-    this.actors.spawn(this.creator.create(params.type, params.props))
+  create({ id, type }: CreateParameters): void {
+    this.idGenerator.id = id
+    this.actors.spawn(id => {
+      const controller = this.controllersManager.get(id)
+      if (!controller) {
+        return
+      }
+      return super.create({ id, type, data: { controller, creator: this.actorsCreator } })
+    })
+  }
+
+  destroy(params: DestroyParameters): void {
+    this.actors.destroy(params.id)
+    super.destroy(params)
   }
 }

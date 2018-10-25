@@ -9,8 +9,15 @@ export interface RouteData<T> {
 export abstract class BaseRouter<T, D extends RouteData<T>>
 extends BaseRegistrator<Handler<T>>
 implements Router<D> {
+  private static readonly DEFAULT_ID = 'default'
+
+  constructor(handler?: Handler<T>) {
+    super()
+    handler && this.register(BaseRouter.DEFAULT_ID, handler)
+  }
+
   route(data: D): boolean {
-    const id = this.getId(data)
+    const id = this.getId(data) || BaseRouter.DEFAULT_ID
     const handler = this.store.get(id)
     if (handler) {
       handler.handle(data.data)
@@ -19,5 +26,5 @@ implements Router<D> {
     return false
   }
 
-  protected abstract getId(data: D): string
+  protected abstract getId(data: D): void | string
 }

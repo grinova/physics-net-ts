@@ -1,11 +1,11 @@
 import { Body, TimeDelta } from 'classic2d'
 import { Controller } from './controller'
 
-export abstract class BaseController<UserData>
+export abstract class BaseController
 implements Controller {
-  readonly body: Body<UserData>
+  readonly body: Body
 
-  constructor(body: Body<UserData>) {
+  constructor(body: Body) {
     this.body = body
   }
 

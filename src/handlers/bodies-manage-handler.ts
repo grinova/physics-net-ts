@@ -1,26 +1,10 @@
+import { Body } from 'classic2d'
 import { ManageHandler } from './manage-handler'
-import { BodiesCreator } from '../creator/bodies-creator'
-import { CreateParameters } from '../data/manage'
+import { BodyCreatorProps } from '../managers/bodies-manager'
 
-export interface NetUserData {
-  id: string
-}
+export interface BodyProps
+extends BodyCreatorProps {}
 
-export class BodiesManageHandler<UserData extends NetUserData>
-extends ManageHandler {
-  private creator: BodiesCreator<UserData>
-
-  constructor(creator: BodiesCreator<UserData>) {
-    super()
-    this.creator = creator
-  }
-
-  create(params: CreateParameters): void {
-    const body = this.creator.create(params.type, params.props)
-    if (body.userData) {
-      body.userData.id = params.id
-    } else {
-      throw new Error(['Body with ID', params.id, ' have empty userData field'].join(' '))
-    }
-  }
+export class BodiesManageHandler
+extends ManageHandler<BodyProps, Body> {
 }

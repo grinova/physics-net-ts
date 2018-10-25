@@ -1,15 +1,16 @@
 import { ActorID, Actors } from 'actors-ts'
-import { TimeDelta } from 'classic2d'
+import { Body, TimeDelta } from 'classic2d'
 import { ControllerActor } from './actors/controller-actor'
 import { CustomIdGenerator } from './actors/custom-id-generator'
 import { BaseController } from './controller/base-controller'
 import { Simulator } from './controller/simulator'
 import { ActorsCreator } from './creator/actors-creator'
-import { BodiesCreator } from './creator/bodies-creator'
+import { ControllersCreator } from './creator/controllers-creator'
 import { Message } from './data/message'
 import { EventSender } from './event/sender'
 import { ActorsManageHandler } from './handlers/actors-manage-handler'
-import { BodiesManageHandler, NetUserData } from './handlers/bodies-manage-handler'
+import { BodiesManageHandler } from './handlers/bodies-manage-handler'
+import { ControllersManageHandler } from './handlers/controllers-manage-handler'
 import { EventHandler } from './handlers/events-handler'
 import { ActorsFactory, ActorsManager } from './managers/actors-manager'
 import { BodiesFactory, BodiesManager } from './managers/bodies-manager'
@@ -20,33 +21,31 @@ import { MessageRouter } from './routers/message-router'
 import { SyncRouter } from './routers/sync-router'
 import { SystemRouter } from './routers/system-router'
 
-export class Client<UserData extends NetUserData> {
+export class Client {
   onConnect?: () => void
   onDisconnect?: () => void
 
   private net: Net
   private simulator: Simulator = new Simulator()
   private sender: EventSender
-  private bodiesManager: BodiesManager<UserData> = new BodiesManager<UserData>()
-  private controllersManager: ControllersManager<UserData> = new ControllersManager<UserData>()
-  private actorsManager: ActorsManager<UserData> = new ActorsManager<UserData>()
+  private bodiesManager: BodiesManager = new BodiesManager()
+  private controllersManager: ControllersManager = new ControllersManager(this.simulator)
+  private actorsManager: ActorsManager = new ActorsManager()
   private syncRouter: SyncRouter = new SyncRouter()
   private systemRouter: SystemRouter = new SystemRouter()
   private messageRouter: MessageRouter = new MessageRouter()
 
   constructor(net: Net) {
     this.net = net
-    this.simulator = new Simulator()
-    const simulator = this.simulator
     const actorsManager = this.actorsManager
     const controllersManager = this.controllersManager
     const bodiesManager = this.bodiesManager
     const actorsListener = {
-      onSpawn(id: ActorID, actor: ControllerActor<UserData, BaseController<UserData>>): void {
+      onSpawn(id: ActorID, actor: ControllerActor<BaseController>): void {
         actorsManager.register(id, actor)
-        controllersManager.register(id, actor.controller)
-        simulator.add(actor.controller)
-        bodiesManager.register(id, actor.controller.body)
+      },
+      onDestroy(id: ActorID): void {
+        actorsManager.unregister(id)
       }
     }
 
@@ -54,14 +53,16 @@ export class Client<UserData extends NetUserData> {
     const actors = new Actors({ rootIdGenerator })
     actors.setListener(actorsListener)
 
-    const bodiesCreator = new BodiesCreator<UserData>(this.bodiesManager)
-    const bodiesManageHandler = new BodiesManageHandler<UserData>(bodiesCreator)
+    const bodiesManageHandler = new BodiesManageHandler(bodiesManager)
 
-    const actorsCreator = new ActorsCreator<UserData>(this.actorsManager, this.controllersManager, this.bodiesManager)
-    const actorsManageHandler = new ActorsManageHandler<UserData>(actorsCreator, rootIdGenerator, actors)
+    const controllersManagerHandler = new ControllersManageHandler(controllersManager, bodiesManager)
+    const controllersCreator = new ControllersCreator(controllersManager, bodiesManager)
+    const actorsCreator = new ActorsCreator(actorsManager, controllersCreator)
+    const actorsManageHandler = new ActorsManageHandler(actorsManager, actorsCreator, controllersManager, rootIdGenerator, actors)
 
     const manageRouter = new ManageRouter()
     manageRouter.register('bodies', bodiesManageHandler)
+    manageRouter.register('controllers', controllersManagerHandler)
     manageRouter.register('actors', actorsManageHandler)
 
     const eventHandler = new EventHandler(actors)
@@ -78,15 +79,19 @@ export class Client<UserData extends NetUserData> {
     this.net.onMessage = this.handleMessage
   }
 
-  getBodiesFactory<UD extends UserData = UserData>(): BodiesFactory<UD> {
-    return (this.bodiesManager as BodiesManager<UD>).getFactory()
+  getBody(id: string): void | Body {
+    return this.bodiesManager.get(id)
   }
 
-  getControllersFactory<UD extends UserData = UserData>(): ControllerFactory<UD> {
+  getBodiesFactory(): BodiesFactory {
+    return (this.bodiesManager as BodiesManager).getFactory()
+  }
+
+  getControllersFactory(): ControllerFactory {
     return this.controllersManager.getFactory()
   }
 
-  getActorsFactory<UD extends UserData = UserData, M extends Message = Message>(): ActorsFactory<UD, M> {
+  getActorsFactory(): ActorsFactory {
     return this.actorsManager.getFactory()
   }
 
