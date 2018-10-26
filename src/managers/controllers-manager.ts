@@ -1,5 +1,6 @@
 import { Body } from 'classic2d'
 import { BaseManager } from './base-manager'
+import { BodiesManager } from './bodies-manager'
 import { Factory } from '../common/factory'
 import { Controller } from '../controller/controller'
 import { Simulator } from '../controller/simulator'
@@ -13,10 +14,12 @@ export type ControllerFactory = Factory<ControllerCreatorProps, Controller>
 export class ControllersManager
 extends BaseManager<ControllerCreatorProps, Controller> {
   private simulator: Simulator
+  private bodiesManager: BodiesManager
 
-  constructor(simulator: Simulator) {
+  constructor(simulator: Simulator, bodiesManager: BodiesManager) {
     super()
     this.simulator = simulator
+    this.bodiesManager = bodiesManager
   }
 
   create<CP extends ControllerCreatorProps = ControllerCreatorProps>(id: string, type: string, props: CP): Controller {
@@ -26,6 +29,9 @@ extends BaseManager<ControllerCreatorProps, Controller> {
   }
 
   destroy(id: string): boolean {
+    if (!this.bodiesManager.destroy(id)) {
+      return false
+    }
     const controller = this.get(id)
     if (controller) {
       this.simulator.delete(controller)

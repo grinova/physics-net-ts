@@ -1,8 +1,10 @@
-import { ActorID, Actors } from 'actors-ts'
-import { Body, TimeDelta } from 'classic2d'
-import { ControllerActor } from './actors/controller-actor'
+import { Actors } from 'actors-ts'
+import {
+  Body,
+  TimeDelta,
+  World
+  } from 'classic2d'
 import { CustomIdGenerator } from './actors/custom-id-generator'
-import { BaseController } from './controller/base-controller'
 import { Simulator } from './controller/simulator'
 import { ActorsCreator } from './creator/actors-creator'
 import { ControllersCreator } from './creator/controllers-creator'
@@ -28,37 +30,34 @@ export class Client {
   private net: Net
   private simulator: Simulator = new Simulator()
   private sender: EventSender
-  private bodiesManager: BodiesManager = new BodiesManager()
-  private controllersManager: ControllersManager = new ControllersManager(this.simulator)
-  private actorsManager: ActorsManager = new ActorsManager()
+  private bodiesManager: BodiesManager
+  private controllersManager: ControllersManager
+  private actorsManager: ActorsManager
   private syncRouter: SyncRouter = new SyncRouter()
   private systemRouter: SystemRouter = new SystemRouter()
   private messageRouter: MessageRouter = new MessageRouter()
 
-  constructor(net: Net) {
+  constructor(net: Net, world: World) {
     this.net = net
-    const actorsManager = this.actorsManager
-    const controllersManager = this.controllersManager
-    const bodiesManager = this.bodiesManager
-    const actorsListener = {
-      onSpawn(id: ActorID, actor: ControllerActor<BaseController>): void {
-        actorsManager.register(id, actor)
-      },
-      onDestroy(id: ActorID): void {
-        actorsManager.unregister(id)
-      }
-    }
+    this.bodiesManager = new BodiesManager(world)
+    this.controllersManager = new ControllersManager(this.simulator, this.bodiesManager)
+    this.actorsManager = new ActorsManager(this.controllersManager)
 
     const rootIdGenerator = new CustomIdGenerator()
     const actors = new Actors({ rootIdGenerator })
-    actors.setListener(actorsListener)
 
-    const bodiesManageHandler = new BodiesManageHandler(bodiesManager)
+    const bodiesManageHandler = new BodiesManageHandler(this.bodiesManager)
 
-    const controllersManagerHandler = new ControllersManageHandler(controllersManager, bodiesManager)
-    const controllersCreator = new ControllersCreator(controllersManager, bodiesManager)
-    const actorsCreator = new ActorsCreator(actorsManager, controllersCreator)
-    const actorsManageHandler = new ActorsManageHandler(actorsManager, actorsCreator, controllersManager, rootIdGenerator, actors)
+    const controllersManagerHandler = new ControllersManageHandler(this.controllersManager, this.bodiesManager)
+    const controllersCreator = new ControllersCreator(this.controllersManager, this.bodiesManager)
+    const actorsCreator = new ActorsCreator(this.actorsManager, controllersCreator)
+    const actorsManageHandler = new ActorsManageHandler(
+      this.actorsManager,
+      actorsCreator,
+      this.controllersManager,
+      rootIdGenerator,
+      actors
+    )
 
     const manageRouter = new ManageRouter()
     manageRouter.register('bodies', bodiesManageHandler)
@@ -77,6 +76,10 @@ export class Client {
     this.net.onConnect = this.handleConnect
     this.net.onDisconnect = this.handleDisconnect
     this.net.onMessage = this.handleMessage
+  }
+
+  destroy(id: string): void {
+    this.actorsManager.destroy(id)
   }
 
   getBody(id: string): void | Body {
