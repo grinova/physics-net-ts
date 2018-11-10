@@ -13,6 +13,7 @@ import { EventSender } from './event/sender'
 import { ActorsManageHandler } from './handlers/actors-manage-handler'
 import { BodiesManageHandler } from './handlers/bodies-manage-handler'
 import { ControllersManageHandler } from './handlers/controllers-manage-handler'
+import { DefaultSyncHandler } from './handlers/default-sync-handler'
 import { EventHandler } from './handlers/events-handler'
 import { ActorsFactory, ActorsManager } from './managers/actors-manager'
 import { BodiesFactory, BodiesManager } from './managers/bodies-manager'
@@ -33,13 +34,14 @@ export class Client {
   private bodiesManager: BodiesManager
   private controllersManager: ControllersManager
   private actorsManager: ActorsManager
-  private syncRouter: SyncRouter = new SyncRouter()
+  private syncRouter: SyncRouter
   private systemRouter: SystemRouter = new SystemRouter()
   private messageRouter: MessageRouter = new MessageRouter()
 
   constructor(net: Net, world: World) {
     this.net = net
     this.bodiesManager = new BodiesManager(world)
+    this.syncRouter = new SyncRouter(new DefaultSyncHandler(this.bodiesManager))
     this.controllersManager = new ControllersManager(this.simulator, this.bodiesManager)
     this.actorsManager = new ActorsManager(this.controllersManager)
 
