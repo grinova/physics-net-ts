@@ -1,6 +1,7 @@
 import { Message as ActorMessage } from 'actors-ts'
 import { ControllerActor as _ControllerActor, ControllerActorProps as _ControllerActorProps } from './actors/controller-actor'
 import { Client as _Client } from './client'
+import { Handler as _Handler } from './common/handler'
 import { BaseController as _BaseController } from './controller/base-controller'
 import { Controller as _Controller } from './controller/controller'
 import { ActorProps as _ActorProps } from './creator/actors-creator'
@@ -20,6 +21,7 @@ export type ControllerActor<C extends Controller, M extends ActorMessage = Actor
 export type ControllerActorProps<C extends Controller> = _ControllerActorProps<C>
 export type EventMessage = _EventMessage
 export type EventSender = _EventSender
+export type Handler<T> = _Handler<T>
 export type Net = _Net
 export type Message = _Message
 export const WebSocketNet = _WebSocketNet
