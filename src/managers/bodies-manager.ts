@@ -20,6 +20,13 @@ extends BaseManager<BodyCreatorProps, Body> {
     if (body) {
       this.world.destroyBody(body)
     }
+    const contactManager = this.world.getContactManager()
+    const contacts = contactManager.getContacts()
+    for (const contact of contacts) {
+      if (contact.bodyA === body || contact.bodyB === body) {
+        contactManager.destroy(contact)
+      }
+    }
     return super.destroy(id)
   }
 }
