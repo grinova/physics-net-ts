@@ -14,14 +14,27 @@ export interface ControllerActorProps<C extends Controller> {
   creator: ActorsCreator
 }
 
-export class ControllerActor<C extends Controller, M extends Message = Message>
+export class ControllerActor<C extends Controller = Controller, M extends Message = Message>
 implements Actor<M> {
-  readonly controller: C
-  readonly creator: ActorsCreator
+  private controller: void | C
+  private creator: void | ActorsCreator
 
-  constructor(props: ControllerActorProps<C>) {
+  constructor() {
+    this.controller = (void 0)
+    this.creator = (void 0)
+  }
+
+  init(props: ControllerActorProps<C>) {
     this.controller = props.controller
     this.creator = props.creator
+  }
+
+  getController(): void | C {
+    return this.controller
+  }
+
+  getCreator(): void | ActorsCreator {
+    return this.creator
   }
 
   onInit?(selfId: ActorID, send: Send, spawn: Spawn, exit: Exit): void

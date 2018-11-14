@@ -3,7 +3,7 @@ import { RouteByIdData } from '../routers/by-id-router'
 export interface CreateParameters {
   type: string
   id: string
-  data: any
+  data?: any
 }
 
 export interface DestroyParameters {

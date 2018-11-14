@@ -1,20 +1,21 @@
 import { ManageHandler } from './manage-handler'
+import { ControllerActor } from '../actors/controller-actor'
 import { CustomIdGenerator } from '../actors/custom-id-generator'
 import { ActorsCreator } from '../creator/actors-creator'
 import { CreateParameters, DestroyParameters } from '../data/manage'
 import { ActorCreatorProps, ActorsManager } from '../managers/actors-manager'
 import { ControllersManager } from '../managers/controllers-manager'
-import { Actors, Actor/* , Message */ } from 'actors-ts'
+import { Actors } from 'actors-ts'
 
-export class ActorsManageHandler/* <M extends Message = Message> */
-extends ManageHandler<ActorCreatorProps, void | Actor/* <M> */> {
+export class ActorsManageHandler
+extends ManageHandler<ActorCreatorProps, void | ControllerActor> {
   private actorsCreator: ActorsCreator
   private controllersManager: ControllersManager
   private idGenerator: CustomIdGenerator
   private actors: Actors
 
   constructor(
-    manager: ActorsManager/* <M> */,
+    manager: ActorsManager,
     actorsCreator: ActorsCreator,
     controllersManager: ControllersManager,
     idGenerator: CustomIdGenerator,
@@ -27,14 +28,18 @@ extends ManageHandler<ActorCreatorProps, void | Actor/* <M> */> {
     this.actors = actors
   }
 
-  create({ id, type }: CreateParameters): void {
+  create({ id, type, data }: CreateParameters): void {
     this.idGenerator.id = id
     this.actors.spawn(id => {
       const controller = this.controllersManager.get(id)
       if (!controller) {
         return
       }
-      return super.create({ id, type, data: { controller, creator: this.actorsCreator } })
+      const actor = super.create({ id, type, data })
+      if (actor) {
+        actor.init({ controller, creator: this.actorsCreator })
+      }
+      return actor
     })
   }
 
