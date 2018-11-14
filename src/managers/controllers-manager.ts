@@ -24,6 +24,10 @@ extends BaseManager<ControllerCreatorProps, Controller> {
 
   create<CP extends ControllerCreatorProps = ControllerCreatorProps>(id: string, type: string, props: CP): Controller {
     const result = super.create<CP>(id, type, props)
+    const body = this.bodiesManager.get(id)
+    if (body) {
+      result.init(body)
+    }
     this.simulator.add(result)
     return result
   }

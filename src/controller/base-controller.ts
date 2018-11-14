@@ -3,10 +3,18 @@ import { Controller } from './controller'
 
 export abstract class BaseController
 implements Controller {
-  readonly body: Body
+  private body: void | Body
 
-  constructor(body: Body) {
+  constructor() {
+    this.body = (void 0)
+  }
+
+  init(body: Body): void {
     this.body = body
+  }
+
+  getBody(): void | Body {
+    return this.body
   }
 
   abstract step(time: TimeDelta): void

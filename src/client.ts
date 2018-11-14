@@ -50,7 +50,7 @@ export class Client {
 
     const bodiesManageHandler = new BodiesManageHandler(this.bodiesManager)
 
-    const controllersManagerHandler = new ControllersManageHandler(this.controllersManager, this.bodiesManager)
+    const controllersManagerHandler = new ControllersManageHandler(this.controllersManager/* , this.bodiesManager */)
     const controllersCreator = new ControllersCreator(this.controllersManager, this.bodiesManager)
     const actorsCreator = new ActorsCreator(this.actorsManager, controllersCreator)
     const actorsManageHandler = new ActorsManageHandler(
