@@ -9,6 +9,7 @@ implements Net {
   onConnect?: () => void
   onDisconnect?: () => void
   onMessage?: (message: Message) => void
+  onError?: () => void
 
   private ws: WebSocket
 
@@ -17,6 +18,7 @@ implements Net {
     this.ws.addEventListener('open', this.handleOpen)
     this.ws.addEventListener('message', this.handleMessage)
     this.ws.addEventListener('close', this.handleClose)
+    this.ws.addEventListener('error', this.handleError)
   }
 
   send(event: EventMessage): void {
@@ -31,10 +33,15 @@ implements Net {
     this.onMessage && this.onMessage(JSON.parse(event.data) as Message)
   }
 
+  private handleError = (_event: Event): void => {
+    this.onError && this.onError()
+  }
+
   private handleClose = (_event: CloseEvent): void => {
     this.ws.removeEventListener('open', this.handleOpen)
     this.ws.removeEventListener('message', this.handleMessage)
     this.ws.removeEventListener('close', this.handleClose)
+    this.ws.removeEventListener('error', this.handleError)
     this.onDisconnect && this.onDisconnect()
   }
 }

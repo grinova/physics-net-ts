@@ -3,7 +3,7 @@ import {
   Body,
   TimeDelta,
   World
-  } from 'classic2d'
+} from 'classic2d'
 import { CustomIdGenerator } from './actors/custom-id-generator'
 import { Simulator } from './controller/simulator'
 import { ActorsCreator } from './creator/actors-creator'
@@ -27,6 +27,7 @@ import { SystemRouter } from './routers/system-router'
 export class Client {
   onConnect?: () => void
   onDisconnect?: () => void
+  onError?: () => void
 
   private net: Net
   private simulator: Simulator = new Simulator()
@@ -78,6 +79,7 @@ export class Client {
     this.net.onConnect = this.handleConnect
     this.net.onDisconnect = this.handleDisconnect
     this.net.onMessage = this.handleMessage
+    this.net.onError = this.handleError
   }
 
   destroy(id: string): void {
@@ -126,5 +128,9 @@ export class Client {
 
   private handleMessage = (message: Message): void => {
     this.messageRouter.route(message)
+  }
+
+  private handleError = (): void => {
+    this.onError && this.onError()
   }
 }
