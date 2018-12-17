@@ -1,9 +1,9 @@
-import { EventMessage, Message } from '../data/message'
+import { Message, SendMessage } from '../data/message'
 
-export interface Net<SendType extends EventMessage = EventMessage> {
+export interface Net<T = SendMessage> {
   onConnect?(): void
   onDisconnect?(): void
   onMessage?(message: Message): void
   onError?(): void
-  send(data: SendType): void
+  send(data: T): void
 }

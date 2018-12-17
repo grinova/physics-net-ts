@@ -19,6 +19,7 @@ import { ActorsFactory, ActorsManager } from './managers/actors-manager'
 import { BodiesFactory, BodiesManager } from './managers/bodies-manager'
 import { ControllerFactory, ControllersManager } from './managers/controllers-manager'
 import { Net } from './net/net'
+import { SystemSender } from './net/sender'
 import { ManageRouter } from './routers/manage-router'
 import { MessageRouter } from './routers/message-router'
 import { SyncRouter } from './routers/sync-router'
@@ -31,7 +32,8 @@ export class Client {
 
   private net: Net
   private simulator: Simulator = new Simulator()
-  private sender: EventSender
+  private eventSender: EventSender
+  private systemSender: SystemSender
   private bodiesManager: BodiesManager
   private controllersManager: ControllersManager
   private actorsManager: ActorsManager
@@ -74,7 +76,8 @@ export class Client {
     this.messageRouter.register('sync', this.syncRouter)
     this.messageRouter.register('system', this.systemRouter)
 
-    this.sender = new EventSender(eventHandler, this.net)
+    this.eventSender = new EventSender(eventHandler, this.net)
+    this.systemSender = new SystemSender(net)
 
     this.net.onConnect = this.handleConnect
     this.net.onDisconnect = this.handleDisconnect
@@ -103,7 +106,11 @@ export class Client {
   }
 
   getEventSender(): EventSender {
-    return this.sender
+    return this.eventSender
+  }
+
+  getSystemSender(): SystemSender {
+    return this.systemSender
   }
 
   getSyncRouter<T = any>(): SyncRouter<T> {

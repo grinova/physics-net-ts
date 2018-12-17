@@ -8,6 +8,7 @@ import { ActorProps as _ActorProps } from './creator/actors-creator'
 import { EventMessage as _EventMessage, Message as _Message } from './data/message'
 import { EventSender as _EventSender } from './event/sender'
 import { Net as _Net } from './net/net'
+import { SystemSender as _SystemSender } from './net/sender'
 import { WebSocketNet as _WebSocketNet } from './net/websocket-net'
 
 export type ActorProps = _ActorProps
@@ -23,5 +24,7 @@ export type EventSender = _EventSender
 export type Handler<T> = _Handler<T>
 export type Net = _Net
 export type Message = _Message
+export const SystemSender = _SystemSender
+export type SystemSender = _SystemSender
 export const WebSocketNet = _WebSocketNet
 export type WebSocketNet = _WebSocketNet
