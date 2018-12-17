@@ -25,12 +25,15 @@ import { MessageRouter } from './routers/message-router'
 import { SyncRouter } from './routers/sync-router'
 import { SystemRouter } from './routers/system-router'
 
-export class Client {
-  onConnect?: () => void
-  onDisconnect?: () => void
-  onError?: () => void
+export interface ClientListener {
+  onConnect?(): void
+  onDisconnect?(): void
+  onError?(): void
+}
 
+export class Client {
   private net: Net
+  private listener: ClientListener
   private simulator: Simulator = new Simulator()
   private eventSender: EventSender
   private systemSender: SystemSender
@@ -41,8 +44,9 @@ export class Client {
   private systemRouter: SystemRouter = new SystemRouter()
   private messageRouter: MessageRouter = new MessageRouter()
 
-  constructor(net: Net, world: World) {
+  constructor(net: Net, world: World, listener: ClientListener = {}) {
     this.net = net
+    this.listener = listener
     this.bodiesManager = new BodiesManager(world)
     this.syncRouter = new SyncRouter(new DefaultSyncHandler(this.bodiesManager))
     this.controllersManager = new ControllersManager(this.simulator, this.bodiesManager)
@@ -121,16 +125,20 @@ export class Client {
     return this.systemRouter
   }
 
+  setListener(listener: ClientListener): void {
+    this.listener = listener
+  }
+
   simulate(time: TimeDelta): void {
     this.simulator.simulate(time)
   }
 
   private handleConnect = (): void => {
-    this.onConnect && this.onConnect()
+    this.listener.onConnect && this.listener.onConnect()
   }
 
   private handleDisconnect = (): void => {
-    this.onDisconnect && this.onDisconnect()
+    this.listener.onDisconnect && this.listener.onDisconnect()
   }
 
   private handleMessage = (message: Message): void => {
@@ -138,6 +146,6 @@ export class Client {
   }
 
   private handleError = (): void => {
-    this.onError && this.onError()
+    this.listener.onError && this.listener.onError()
   }
 }

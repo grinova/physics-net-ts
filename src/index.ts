@@ -1,6 +1,6 @@
 import { Message as ActorMessage } from 'actors-ts'
 import { ControllerActor as _ControllerActor } from './actors/controller-actor'
-import { Client as _Client } from './client'
+import { Client as _Client, ClientListener as _ClientListener } from './client'
 import { Handler as _Handler } from './common/handler'
 import { BaseController as _BaseController } from './controller/base-controller'
 import { Controller as _Controller } from './controller/controller'
@@ -16,6 +16,7 @@ export const BaseController = _BaseController
 export type BaseController = _BaseController
 export const Client = _Client
 export type Client = _Client
+export type ClientListener = _ClientListener
 export type Controller = _Controller
 export const ControllerActor = _ControllerActor
 export type ControllerActor<C extends Controller, M extends ActorMessage = ActorMessage> = _ControllerActor<C, M>
